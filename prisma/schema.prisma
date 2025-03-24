@@ -1,0 +1,73 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ParticipantOnboardingFrom {
+  id                           String                     @id @default(uuid())
+  firstName                    String
+  lastName                     String
+  email                        String                     @unique
+  participantName              String
+  street                       String
+  zipCode                      String
+  city                         String
+  countryCode                  String
+  countrySubdivisionCode       String
+  vatID                        String
+  ParticipantOnboardingRequest ParticipantOnboardingRequest?
+
+  participantVcId              String
+  participantSubjectId         String
+  termsAndConditionsVcId       String
+  termsAndConditionsSubjectId  String
+  registrationNumberVcId       String
+  registrationNumberSubjectId  String
+}
+
+model ParticipantOnboardingRequest {
+  id                           String                     @id @default(uuid())
+  requestDate                  DateTime                   @default(now())
+
+  emailVerified                Boolean                    @default(false)
+  frApproved                   Boolean                    @default(false)
+  vcsSubmitted                 Boolean                    @default(false)
+
+  trustAnchorVc                String?
+  participantVc                String?
+  termsAndConditionsVc         String?
+  registrationNumberVc         String?
+  complianceUrl                String?
+  complianceVc                 String?
+
+  formId                       String                     @unique
+  form                         ParticipantOnboardingFrom  @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  didId                        String?                    // portal hosted did
+}
+
+model Did {
+  id                           String                     @id @default(uuid())
+  did                          String
+  certificate                  String
+}
+
+model Participant {
+  id                           String                     @id
+  complianceUrl                String
+  termsAndConditionsVc         String
+  legalRegistrationNumberVc    String
+  complianceVc                 String
+}
+
+model Compliance {
+  hash                         String                     @id
+  complianceVc                 String
+}
